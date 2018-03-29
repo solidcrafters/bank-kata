@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "body-parser": "1.18.2",
     "bootstrap": "4.0.0",
     "express": "4.16.3",
     "react": "16.2.0",
@@ -22,7 +23,7 @@
   },
   "scripts": {
     "start-js": "react-scripts start",
-    "server": "node api/server.js",
+    "server": "node api/index.js",
     "start": "npm-run-all -p server start-js",
     "test-socket": "node src/testServer.js",
     "start-ui": "npm-run-all -p test-socket start-js",
