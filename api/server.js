@@ -11,6 +11,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 function setupApiServer (eventEmitter, manager = accountManager()) {
   app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
+  app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/ws.html');
+  })
+
   app.post('/api/register', (req, res) => {
     const account = manager.registerAccount(req.body.name)
     eventEmitter.emit('register', account)
