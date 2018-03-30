@@ -24,9 +24,15 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
 
   app.post('/api/credit', (req, res) => {
     console.log("Credit ->", req.body)
-    const account = creditAccount(manager.getRegisteredAccount(req.body.name), req.body.amount)
-    eventEmitter.emit('credit', account)
-    res.send(account)
+    const accountName = req.body.name
+    const registeredAccount = manager.getRegisteredAccount(accountName)
+    if (registeredAccount == null) {
+      res.status(404).send(accountName + ' account does not exist')
+    } else {
+      const account = creditAccount(registeredAccount, req.body.amount)
+      eventEmitter.emit('credit', account)
+      res.send(account)
+    }
   })
 }
 
