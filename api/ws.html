@@ -5,7 +5,7 @@
     open console to see connection.
 </p>
 <script>
-  var ws = new WebSocket('ws://localhost:40510');
+  var ws = new WebSocket('ws://localhost:3001');
   ws.onopen = function () {
     console.log('websocket is connected ...')
     ws.send('connected')

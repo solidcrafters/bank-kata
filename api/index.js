@@ -1,8 +1,6 @@
 const events = require('events')
 const eventEmitter = new events.EventEmitter()
 
-const setupWebSocketServer = require('./ws')
-const setupApiServer = require('./server')
+const setupServer = require('./server')
 
-setupApiServer(eventEmitter)
-setupWebSocketServer(eventEmitter)
+setupServer(eventEmitter)

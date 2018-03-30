@@ -1,14 +1,15 @@
-const express = require('express')
 const bodyParser = require('body-parser')
+const express = require('express')
+const http = require('http')
+const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
 const {creditAccount} = require('./account')
 
-const app = express()
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+function setupApiServer (app, eventEmitter, manager = accountManager()) {
+  app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({ extended: true }))
 
-function setupApiServer (eventEmitter, manager = accountManager()) {
   app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
   app.get('/', function (req, res) {
@@ -27,8 +28,38 @@ function setupApiServer (eventEmitter, manager = accountManager()) {
     eventEmitter.emit('credit', account)
     res.send(account)
   })
-
-  app.listen(3001, () => console.log('Example app listening on port 3001!'))
 }
 
-module.exports = setupApiServer
+function setupWebSocketServer (server, eventEmitter) {
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('connection', ws => {
+
+    const send = type => account => {
+      const event = {
+        type,
+        payload: {
+          balance: account.balance,
+          name: account.name
+        }
+      }
+      ws.send(JSON.stringify(event))
+    }
+
+    eventEmitter.on('register', send('ACCOUNT_DECLARED'))
+
+    eventEmitter.on('credit', send('ACCOUNT_CREDITED'))
+  })
+}
+
+function setupServer (eventEmitter) {
+  const app = express()
+  const server = http.createServer(app);
+
+  setupApiServer(app, eventEmitter)
+  setupWebSocketServer(server, eventEmitter)
+
+  server.listen(3001, () => console.log('Listening on %d', server.address().port))
+}
+
+module.exports = setupServer
