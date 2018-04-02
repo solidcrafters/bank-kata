@@ -6,7 +6,7 @@ const WebSocket = require('ws')
 const accountManager = require('./account_manager')
 const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} = require('../commons/constants')
 
-function setupApiServer (app, eventEmitter, manager = accountManager()) {
+function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -17,8 +17,8 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
   })
 
   app.post('/api/account/register', (req, res) => {
-    const account = manager.registerAccount(req.body.name)
     eventEmitter.emit('register', account.toJson())
+    const account = accountStore.registerAccount(req.body.name)
     res.send(account.toJson())
   })
 
@@ -41,7 +41,7 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
   })
 
   function handle (res, accountName, handler) {
-    const registeredAccount = manager.getRegisteredAccount(accountName)
+    const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
     } else {
@@ -77,10 +77,11 @@ function setupWebSocketServer (server, eventEmitter) {
 
 function setupServer (eventEmitter) {
   const app = express()
-  const server = http.createServer(app);
+  const server = http.createServer(app)
+  const accountStore = accountManager()
 
-  setupApiServer(app, eventEmitter)
   setupWebSocketServer(server, eventEmitter)
+  setupApiServer(app, eventEmitter, accountStore)
 
   server.listen(8080, () => console.log('Listening on %d', server.address().port))
 }
