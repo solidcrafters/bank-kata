@@ -61,7 +61,11 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
         type,
         payload: account.toJson()
       }
-      ws.send(JSON.stringify(event))
+      try {
+        ws.send(JSON.stringify(event))
+      } catch (error) {
+        console.log('Error when sending the event to the ws', error)
+      }
     }
 
     eventEmitter.on('register', send(ACCOUNT_DECLARED))
