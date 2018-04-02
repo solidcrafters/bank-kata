@@ -51,7 +51,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
   }
 }
 
-function setupWebSocketServer (server, eventEmitter) {
+function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', ws => {
@@ -80,8 +80,8 @@ function setupServer (eventEmitter) {
   const server = http.createServer(app)
   const accountStore = accountManager()
 
-  setupWebSocketServer(server, eventEmitter)
   setupApiServer(app, eventEmitter, accountStore)
+  setupWebSocketServer(server, eventEmitter, accountStore)
 
   server.listen(8080, () => console.log('Listening on %d', server.address().port))
 }
