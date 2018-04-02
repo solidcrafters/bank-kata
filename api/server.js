@@ -81,7 +81,7 @@ function setupServer (eventEmitter) {
   setupApiServer(app, eventEmitter)
   setupWebSocketServer(server, eventEmitter)
 
-  server.listen(3001, () => console.log('Listening on %d', server.address().port))
+  server.listen(8080, () => console.log('Listening on %d', server.address().port))
 }
 
 module.exports = setupServer
