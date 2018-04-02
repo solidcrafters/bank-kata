@@ -17,8 +17,8 @@ function setupApiServer (app, eventEmitter, accountStore) {
   })
 
   app.post('/api/account/register', (req, res) => {
-    eventEmitter.emit('register', account.toJson())
     const account = accountStore.registerAccount(req.body.name)
+    eventEmitter.emit('register', account)
     res.send(account.toJson())
   })
 
@@ -29,14 +29,14 @@ function setupApiServer (app, eventEmitter, accountStore) {
   app.post('/api/account/credit', (req, res) => {
     handle(res, req.body.name, account => {
       account.credit(req.body.amount)
-      eventEmitter.emit('credit', account.toJson())
+      eventEmitter.emit('credit', account)
     })
   })
 
   app.post('/api/account/debit', (req, res) => {
     handle(res, req.body.name, account => {
       account.debit(req.body.amount)
-      eventEmitter.emit('debit', account.toJson())
+      eventEmitter.emit('debit', account)
     })
   })
 
@@ -59,10 +59,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     const send = type => account => {
       const event = {
         type,
-        payload: {
-          balance: account.balance,
-          name: account.name
-        }
+        payload: account.toJson()
       }
       ws.send(JSON.stringify(event))
     }
