@@ -4,7 +4,6 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
-const {creditAccount} = require('./account')
 
 function setupApiServer (app, eventEmitter, manager = accountManager()) {
   app.use(bodyParser.json())
@@ -16,24 +15,33 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
     res.sendFile(__dirname + '/ws.html');
   })
 
-  app.post('/api/register', (req, res) => {
+  app.post('/api/account/register', (req, res) => {
     const account = manager.registerAccount(req.body.name)
-    eventEmitter.emit('register', account)
-    res.send(account)
+    eventEmitter.emit('register', account.toJson())
+    res.send(account.toJson())
   })
 
-  app.post('/api/credit', (req, res) => {
-    console.log("Credit ->", req.body)
-    const accountName = req.body.name
+  app.get('/api/account/', (req, res) => {
+    handle(res, req.query.name, registeredAccount => {})
+  })
+
+  app.post('/api/account/credit', (req, res) => {
+    handle(res, req.body.name, account => {
+      account.credit(req.body.amount)
+      eventEmitter.emit('credit', account.toJson())
+    })
+  })
+
+
+  function handle (res, accountName, handler) {
     const registeredAccount = manager.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
     } else {
-      const account = creditAccount(registeredAccount, req.body.amount)
-      eventEmitter.emit('credit', account)
-      res.send(account)
+      handler(registeredAccount)
+      res.send(registeredAccount.toJson())
     }
-  })
+  }
 }
 
 function setupWebSocketServer (server, eventEmitter) {

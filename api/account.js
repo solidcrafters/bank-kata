@@ -1,23 +1,23 @@
-function newAccount (name, balance = 80) {
-  return {
-    name,
-    balance
+class Account {
+  constructor (name, balance = 80) {
+    this.name = name
+    this.balance = balance
+  }
+
+  credit (amount) {
+    this.balance += amount
+  }
+
+  debit (amount) {
+    this.balance -= amount
+  }
+
+  toJson () {
+    return {
+      name: this.name,
+      balance: this.balance
+    }
   }
 }
 
-function creditAccount (account, amount) {
-  return {
-    name: account.name,
-    balance: account.balance + amount
-  }
-}
-
-function debitAccount (account, amount) {
-  return creditAccount(account, -amount)
-}
-
-module.exports = {
-  newAccount,
-  creditAccount,
-  debitAccount
-}
+module.exports = Account

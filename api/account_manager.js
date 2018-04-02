@@ -1,10 +1,10 @@
-const { newAccount } = require('./account')
+const Account = require('./account')
 
 function accountManager () {
   const accounts = {}
 
   function registerAccount (accountName) {
-    const account = newAccount(accountName)
+    const account = new Account(accountName)
     accounts[accountName] = account
     return account
   }
