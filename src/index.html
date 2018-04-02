@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <ul id="content">
+
+    </ul>
+</div>
+
+<script type="application/javascript">
+  const socket = new WebSocket('ws://localhost:8080');
+  socket.onopen = function (event) {
+    console.log('web socket opened !', event);
+  };
+  socket.onmessage = function(event) {
+    console.log('message received', event.data);
+  }
+</script>
+</body>
+</html>
