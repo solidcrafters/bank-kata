@@ -18,7 +18,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.post('/api/account/register', (req, res) => {
     const account = accountStore.registerAccount(req.body.name)
-    eventEmitter.emit('register', account)
+    eventEmitter.emit('register', account.toJson())
     res.send(account.toJson())
   })
 
@@ -27,16 +27,20 @@ function setupApiServer (app, eventEmitter, accountStore) {
   })
 
   app.post('/api/account/credit', (req, res) => {
-    handle(res, req.body.name, account => {
-      account.credit(req.body.amount)
-      eventEmitter.emit('credit', account)
+    const accountName = req.body.name
+    const amount = req.body.amount
+    handle(res, accountName, account => {
+      account.credit(amount)
+      eventEmitter.emit('credit', {name: accountName, amount})
     })
   })
 
   app.post('/api/account/debit', (req, res) => {
-    handle(res, req.body.name, account => {
-      account.debit(req.body.amount)
-      eventEmitter.emit('debit', account)
+    const accountName = req.body.name
+    const amount = req.body.amount
+    handle(res, accountName, account => {
+      account.debit(amount)
+      eventEmitter.emit('debit', {name: accountName, amount})
     })
   })
 
@@ -55,11 +59,10 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', ws => {
-
-    const send = type => account => {
+    const send = type => payload => {
       const event = {
         type,
-        payload: account.toJson()
+        payload
       }
       try {
         ws.send(JSON.stringify(event))
@@ -77,7 +80,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     const registeredAccounts = accountStore.getRegisteredAccounts()
     for (let account in registeredAccounts) {
       if (registeredAccounts.hasOwnProperty(account)) {
-        send(ACCOUNT_DECLARED)(registeredAccounts[account])
+        send(ACCOUNT_DECLARED)(registeredAccounts[account].toJson())
       }
     }
   })
