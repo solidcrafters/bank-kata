@@ -1,6 +1,6 @@
 const events = require('events')
-const eventEmitter = new events.EventEmitter()
-
 const setupServer = require('./server')
+
+const eventEmitter = new events.EventEmitter()
 
 setupServer(eventEmitter)

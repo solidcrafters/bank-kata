@@ -4,6 +4,7 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
+const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} = require('../commons/constants')
 
 function setupApiServer (app, eventEmitter, manager = accountManager()) {
   app.use(bodyParser.json())
@@ -66,11 +67,11 @@ function setupWebSocketServer (server, eventEmitter) {
       ws.send(JSON.stringify(event))
     }
 
-    eventEmitter.on('register', send('ACCOUNT_DECLARED'))
+    eventEmitter.on('register', send(ACCOUNT_DECLARED))
 
-    eventEmitter.on('credit', send('ACCOUNT_CREDITED'))
+    eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
-    eventEmitter.on('debit', send('ACCOUNT_DEBITED'))
+    eventEmitter.on('debit', send(ACCOUNT_DEBITED))
   })
 }
 

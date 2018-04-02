@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start-js": "react-scripts start",
-    "server": "node api/index.js",
+    "server": "node src/server/index.js",
     "start": "npm-run-all -p server start-js",
     "test-socket": "node src/testServer.js",
     "start-ui": "npm-run-all -p test-socket start-js",
