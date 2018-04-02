@@ -12,10 +12,13 @@ import {connectWS} from "./webSocket";
 
 import {apiConnected, apiError, apiClosed} from './api/actions';
 import {reducers as apiReducers} from './api/reducers';
+import {reducer as accountsReducer} from './accounts/reducers';
+import {ACCOUNT_DECLARED} from "./commons/constants";
 
 const store = createStore(
   combineReducers({
-    api: apiReducers
+    api: apiReducers,
+    accounts: accountsReducer
   }),
   devToolsEnhancer()
 );
@@ -28,7 +31,7 @@ const actions = bindActionCreators({
 
 connectWS(actions);
 
-const accounts = [
+[
   {name: 'Account One'},
   {name: 'Account Two'},
   {name: 'Account Three'},
@@ -36,10 +39,20 @@ const accounts = [
   {name: 'Account Five'},
   {name: 'Account Six'},
   {name: 'Account Seven'},
-];
+].forEach(({name}, index) => {
+  setTimeout(() => {
+    store.dispatch({
+      type: ACCOUNT_DECLARED,
+      payload: {
+        name,
+        balance: Math.trunc(Math.random() * 2000 - 1000)
+      }
+    });
+  }, index * 1000 + 500)
+});
 
 ReactDOM.render(
   <Provider store={store}>
-    <App accounts={accounts} />
+    <App />
   </Provider>, document.getElementById('root'));
 registerServiceWorker();

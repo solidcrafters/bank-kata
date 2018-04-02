@@ -15,5 +15,6 @@ export const App = ({apiStatus, accounts}) => (
 );
 
 export default connect(state => ({
-  apiStatus: state.api.status
+  apiStatus: state.api.status,
+  accounts: Object.values(state.accounts)
 }))(App);
