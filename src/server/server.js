@@ -6,7 +6,7 @@ const WebSocket = require('ws')
 const accountManager = require('./account_manager')
 const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} = require('../commons/constants')
 
-function setupApiServer (app, eventEmitter, manager = accountManager()) {
+function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -17,41 +17,41 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
   })
 
   app.post('/api/account/register', (req, res) => {
-    const account = manager.registerAccount(req.body.name)
-    eventEmitter.emit('register', account.toJson())
+    const account = accountStore.registerAccount(req.body.name)
+    eventEmitter.emit('register', account)
     res.send(account.toJson())
   })
 
   app.get('/api/account/', (req, res) => {
-    handle(res, req.query.name, registeredAccount => {})
+    handle(res, req.query.name)
   })
 
   app.post('/api/account/credit', (req, res) => {
     handle(res, req.body.name, account => {
       account.credit(req.body.amount)
-      eventEmitter.emit('credit', account.toJson())
+      eventEmitter.emit('credit', account)
     })
   })
 
   app.post('/api/account/debit', (req, res) => {
     handle(res, req.body.name, account => {
       account.debit(req.body.amount)
-      eventEmitter.emit('debit', account.toJson())
+      eventEmitter.emit('debit', account)
     })
   })
 
   function handle (res, accountName, handler) {
-    const registeredAccount = manager.getRegisteredAccount(accountName)
+    const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
     } else {
-      handler(registeredAccount)
+      handler && handler(registeredAccount)
       res.send(registeredAccount.toJson())
     }
   }
 }
 
-function setupWebSocketServer (server, eventEmitter) {
+function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', ws => {
@@ -59,12 +59,13 @@ function setupWebSocketServer (server, eventEmitter) {
     const send = type => account => {
       const event = {
         type,
-        payload: {
-          balance: account.balance,
-          name: account.name
-        }
+        payload: account.toJson()
       }
-      ws.send(JSON.stringify(event))
+      try {
+        ws.send(JSON.stringify(event))
+      } catch (error) {
+        console.log('Error when sending the event to the ws', error)
+      }
     }
 
     eventEmitter.on('register', send(ACCOUNT_DECLARED))
@@ -72,15 +73,23 @@ function setupWebSocketServer (server, eventEmitter) {
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
     eventEmitter.on('debit', send(ACCOUNT_DEBITED))
+
+    const registeredAccounts = accountStore.getRegisteredAccounts()
+    for (let account in registeredAccounts) {
+      if (registeredAccounts.hasOwnProperty(account)) {
+        send(ACCOUNT_DECLARED)(registeredAccounts[account])
+      }
+    }
   })
 }
 
 function setupServer (eventEmitter) {
   const app = express()
-  const server = http.createServer(app);
+  const server = http.createServer(app)
+  const accountStore = accountManager()
 
-  setupApiServer(app, eventEmitter)
-  setupWebSocketServer(server, eventEmitter)
+  setupApiServer(app, eventEmitter, accountStore)
+  setupWebSocketServer(server, eventEmitter, accountStore)
 
   server.listen(8080, () => console.log('Listening on %d', server.address().port))
 }
