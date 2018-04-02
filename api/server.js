@@ -32,6 +32,12 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
     })
   })
 
+  app.post('/api/account/debit', (req, res) => {
+    handle(res, req.body.name, account => {
+      account.debit(req.body.amount)
+      eventEmitter.emit('debit', account.toJson())
+    })
+  })
 
   function handle (res, accountName, handler) {
     const registeredAccount = manager.getRegisteredAccount(accountName)
@@ -63,6 +69,8 @@ function setupWebSocketServer (server, eventEmitter) {
     eventEmitter.on('register', send('ACCOUNT_DECLARED'))
 
     eventEmitter.on('credit', send('ACCOUNT_CREDITED'))
+
+    eventEmitter.on('debit', send('ACCOUNT_DEBITED'))
   })
 }
 
