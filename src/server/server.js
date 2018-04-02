@@ -23,7 +23,7 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
   })
 
   app.get('/api/account/', (req, res) => {
-    handle(res, req.query.name, registeredAccount => {})
+    handle(res, req.query.name)
   })
 
   app.post('/api/account/credit', (req, res) => {
@@ -45,7 +45,7 @@ function setupApiServer (app, eventEmitter, manager = accountManager()) {
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
     } else {
-      handler(registeredAccount)
+      handler && handler(registeredAccount)
       res.send(registeredAccount.toJson())
     }
   }
