@@ -73,6 +73,13 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
     eventEmitter.on('debit', send(ACCOUNT_DEBITED))
+
+    const registeredAccounts = accountStore.getRegisteredAccounts()
+    for (let account in registeredAccounts) {
+      if (registeredAccounts.hasOwnProperty(account)) {
+        send(ACCOUNT_DECLARED)(registeredAccounts[account])
+      }
+    }
   })
 }
 

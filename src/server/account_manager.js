@@ -13,9 +13,14 @@ function accountManager () {
     return accounts[accountName]
   }
 
+  function getRegisteredAccounts () {
+    return accounts;
+  }
+
   return {
     registerAccount,
-    getRegisteredAccount
+    getRegisteredAccount,
+    getRegisteredAccounts
   }
 }
 
