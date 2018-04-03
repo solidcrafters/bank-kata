@@ -4,7 +4,7 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
-const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED} = require('../commons/constants')
+const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED, AMOUNT_TRANSFERRED} = require('../commons/constants')
 
 function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
@@ -55,6 +55,20 @@ function setupApiServer (app, eventEmitter, accountStore) {
     })
   })
 
+  app.post('/api/account/transfer', (req, res) => {
+    const fromAccountName = req.body.from
+    const toAccountName = req.body.to
+    const amount = req.body.amount
+    handle(res, fromAccountName, fromAccount => {
+      handle(res, toAccountName, toAccount => {
+        fromAccount.debit(amount)
+        toAccount.credit(amount)
+        eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
+        return true
+      })
+    })
+  })
+
   function handle (res, accountName, handler) {
     const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
@@ -93,6 +107,8 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
     eventEmitter.on('debit', send(ACCOUNT_DEBITED))
+
+    eventEmitter.on('transfer', send(AMOUNT_TRANSFERRED))
 
     const registeredAccounts = accountStore.getRegisteredAccounts()
     for (let account in registeredAccounts) {
