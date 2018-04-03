@@ -88,7 +88,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({server})
 
   wss.on('connection', ws => {
-    const send = type => payload => {
+    const send = (type, payload) => {
       const event = {
         type,
         payload
@@ -100,20 +100,38 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       }
     }
 
-    eventEmitter.on('declare', send(ACCOUNT_DECLARED))
+    const sendAccountDeclared = payload => send(ACCOUNT_DECLARED, payload)
+    const sendAccountUnDeclared = payload => send(ACCOUNT_UNDECLARED, payload)
+    const sendAccountCredited = payload => send(ACCOUNT_CREDITED, payload)
+    const sendAccountDebited = payload => send(ACCOUNT_DEBITED, payload)
+    const sendAccountTransferred = payload => send(AMOUNT_TRANSFERRED, payload)
 
-    eventEmitter.on('undeclare', send(ACCOUNT_UNDECLARED))
+    registerListeners()
+    initialize()
+    ws.on('close', unregisterListeners)
 
-    eventEmitter.on('credit', send(ACCOUNT_CREDITED))
+    function registerListeners() {
+      eventEmitter.on('declare', sendAccountDeclared)
+      eventEmitter.on('undeclare', sendAccountUnDeclared)
+      eventEmitter.on('credit', sendAccountCredited)
+      eventEmitter.on('debit', sendAccountDebited)
+      eventEmitter.on('transfer', sendAccountTransferred)
+    }
 
-    eventEmitter.on('debit', send(ACCOUNT_DEBITED))
+    function unregisterListeners() {
+      eventEmitter.removeListener('declare', sendAccountDeclared)
+      eventEmitter.removeListener('undeclare', sendAccountUnDeclared)
+      eventEmitter.removeListener('credit', sendAccountCredited)
+      eventEmitter.removeListener('debit', sendAccountDebited)
+      eventEmitter.removeListener('transfer', sendAccountTransferred)
+    }
 
-    eventEmitter.on('transfer', send(AMOUNT_TRANSFERRED))
-
-    const registeredAccounts = accountStore.getRegisteredAccounts()
-    for (let account in registeredAccounts) {
-      if (registeredAccounts.hasOwnProperty(account)) {
-        send(ACCOUNT_DECLARED)(registeredAccounts[account].toJson())
+    function initialize () {
+      const registeredAccounts = accountStore.getRegisteredAccounts()
+      for (let account in registeredAccounts) {
+        if (registeredAccounts.hasOwnProperty(account)) {
+          sendAccountDeclared(registeredAccounts[account].toJson())
+        }
       }
     }
   })
