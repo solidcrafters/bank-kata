@@ -27,11 +27,12 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       accountStore.unregisterAccount(accountName)
       eventEmitter.emit('undeclare', account.toJson())
+      return true
     })
   })
 
   app.get('/api/account/', (req, res) => {
-    handle(res, req.query.name)
+    handle(res, req.query.name, () => true)
   })
 
   app.post('/api/account/credit', (req, res) => {
@@ -40,6 +41,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       account.credit(amount)
       eventEmitter.emit('credit', {name: accountName, amount})
+      return true
     })
   })
 
@@ -49,6 +51,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       account.debit(amount)
       eventEmitter.emit('debit', {name: accountName, amount})
+      return true
     })
   })
 
@@ -56,9 +59,13 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
+      return false
     } else {
-      handler && handler(registeredAccount)
-      res.send(registeredAccount.toJson())
+      if (handler(registeredAccount)) {
+        res.send(registeredAccount.toJson())
+      } else {
+        res.status(400).send()
+      }
     }
   }
 }
