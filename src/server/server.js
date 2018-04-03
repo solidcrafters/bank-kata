@@ -4,7 +4,7 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
-const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} = require('../commons/constants')
+const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED} = require('../commons/constants')
 
 function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
@@ -18,8 +18,16 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.post('/api/account/register', (req, res) => {
     const account = accountStore.registerAccount(req.body.name)
-    eventEmitter.emit('register', account.toJson())
+    eventEmitter.emit('declare', account.toJson())
     res.send(account.toJson())
+  })
+
+  app.post('/api/account/unregister', (req, res) => {
+    const accountName = req.body.name
+    handle(res, accountName, account => {
+      accountStore.unregisterAccount(accountName)
+      eventEmitter.emit('undeclare', account.toJson())
+    })
   })
 
   app.get('/api/account/', (req, res) => {
@@ -71,7 +79,9 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       }
     }
 
-    eventEmitter.on('register', send(ACCOUNT_DECLARED))
+    eventEmitter.on('declare', send(ACCOUNT_DECLARED))
+
+    eventEmitter.on('undeclare', send(ACCOUNT_UNDECLARED))
 
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 

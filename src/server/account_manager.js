@@ -9,6 +9,10 @@ function accountManager () {
     return account
   }
 
+  function unregisterAccount (accountName) {
+    delete accounts[accountName]
+  }
+
   function getRegisteredAccount (accountName) {
     return accounts[accountName]
   }
@@ -19,6 +23,7 @@ function accountManager () {
 
   return {
     registerAccount,
+    unregisterAccount,
     getRegisteredAccount,
     getRegisteredAccounts
   }
