@@ -18,7 +18,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.post('/api/account/register', (req, res) => {
     const account = accountStore.registerAccount(req.body.name)
-    eventEmitter.emit('register', account.toJson())
+    eventEmitter.emit('declare', account.toJson())
     res.send(account.toJson())
   })
 
@@ -26,7 +26,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const accountName = req.body.name
     handle(res, accountName, account => {
       accountStore.unregisterAccount(accountName)
-      eventEmitter.emit('unregister', account.toJson())
+      eventEmitter.emit('undeclare', account.toJson())
     })
   })
 
@@ -79,9 +79,9 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       }
     }
 
-    eventEmitter.on('register', send(ACCOUNT_DECLARED))
+    eventEmitter.on('declare', send(ACCOUNT_DECLARED))
 
-    eventEmitter.on('unregister', send(ACCOUNT_UNDECLARED))
+    eventEmitter.on('undeclare', send(ACCOUNT_UNDECLARED))
 
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
