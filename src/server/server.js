@@ -4,7 +4,7 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
-const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED} = require('../commons/constants')
+const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED, AMOUNT_TRANSFERRED} = require('../commons/constants')
 
 function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
@@ -13,7 +13,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
   app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
   app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/ws.html');
+    res.sendFile(__dirname + '/ws.html')
   })
 
   app.post('/api/account/register', (req, res) => {
@@ -27,11 +27,12 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       accountStore.unregisterAccount(accountName)
       eventEmitter.emit('undeclare', account.toJson())
+      return true
     })
   })
 
   app.get('/api/account/', (req, res) => {
-    handle(res, req.query.name)
+    handle(res, req.query.name, () => true)
   })
 
   app.post('/api/account/credit', (req, res) => {
@@ -40,6 +41,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       account.credit(amount)
       eventEmitter.emit('credit', {name: accountName, amount})
+      return true
     })
   })
 
@@ -49,6 +51,21 @@ function setupApiServer (app, eventEmitter, accountStore) {
     handle(res, accountName, account => {
       account.debit(amount)
       eventEmitter.emit('debit', {name: accountName, amount})
+      return true
+    })
+  })
+
+  app.post('/api/account/transfer', (req, res) => {
+    const fromAccountName = req.body.from
+    const toAccountName = req.body.to
+    const amount = req.body.amount
+    handle(res, fromAccountName, fromAccount => {
+      handle(res, toAccountName, toAccount => {
+        fromAccount.debit(amount)
+        toAccount.credit(amount)
+        eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
+        return true
+      })
     })
   })
 
@@ -56,15 +73,19 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
       res.status(404).send(accountName + ' account does not exist')
+      return false
     } else {
-      handler && handler(registeredAccount)
-      res.send(registeredAccount.toJson())
+      if (handler(registeredAccount)) {
+        res.send(registeredAccount.toJson())
+      } else {
+        res.status(400).send()
+      }
     }
   }
 }
 
 function setupWebSocketServer (server, eventEmitter, accountStore) {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({server})
 
   wss.on('connection', ws => {
     const send = type => payload => {
@@ -86,6 +107,8 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     eventEmitter.on('credit', send(ACCOUNT_CREDITED))
 
     eventEmitter.on('debit', send(ACCOUNT_DEBITED))
+
+    eventEmitter.on('transfer', send(AMOUNT_TRANSFERRED))
 
     const registeredAccounts = accountStore.getRegisteredAccounts()
     for (let account in registeredAccounts) {
