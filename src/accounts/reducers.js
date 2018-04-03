@@ -1,5 +1,5 @@
 import {handleActions} from 'redux-actions';
-import {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} from "../commons/constants";
+import {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED} from "../commons/constants";
 import {initialState, Accounts} from "./state";
 
 export const reducer = handleActions({
@@ -24,5 +24,9 @@ export const reducer = handleActions({
           balance: state[name].balance - amount
         }
       }
+    }),
+  [ACCOUNT_UNDECLARED]: (state, {payload:{name, amount}}) =>
+    Accounts.update(state, {
+      $remove: [name]
     }),
 }, initialState);

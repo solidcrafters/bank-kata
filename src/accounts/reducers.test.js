@@ -1,7 +1,7 @@
 /* global describe, it, expect */
 
 import {reducer} from './reducers';
-import {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} from "../commons/constants";
+import {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED} from "../commons/constants";
 
 describe('accounts reducers', () => {
   describe('account declared', () => {
@@ -108,6 +108,28 @@ describe('accounts reducers', () => {
           name: 'abitbol'
         }
       });
+    });
+  });
+
+  describe('account undeclared', () => {
+    it('should undeclare an account', () => {
+      const state = {
+        abitbol: {
+          balance: 10,
+          name: 'abitbol'
+        }
+      };
+
+      const action = {
+        type: ACCOUNT_UNDECLARED,
+        payload: {
+          name: 'abitbol'
+        }
+      };
+
+      const newState = reducer(state, action);
+
+      expect(newState.abitbol).toBeUndefined();
     });
   });
 });
