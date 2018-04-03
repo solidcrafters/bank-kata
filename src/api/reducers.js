@@ -6,6 +6,7 @@ const statuses = {
   [API_CLOSED]: 'CLOSED',
 };
 
-export const reducers = (state = {status: 'CLOSED'}, {type}) =>
-  statuses[type] ? {status: statuses[type]} : state;
+const initialState = {status: 'CLOSED'};
 
+export const reducers = (state = initialState, {type}) =>
+  statuses[type] ? {status: statuses[type]} : state;

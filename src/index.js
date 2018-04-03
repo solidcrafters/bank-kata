@@ -12,10 +12,12 @@ import {connectWS} from "./webSocket";
 
 import {apiConnected, apiError, apiClosed} from './api/actions';
 import {reducers as apiReducers} from './api/reducers';
+import {reducer as accountsReducer} from './accounts/reducers';
 
 const store = createStore(
   combineReducers({
-    api: apiReducers
+    api: apiReducers,
+    accounts: accountsReducer
   }),
   devToolsEnhancer()
 );
@@ -26,20 +28,12 @@ const actions = bindActionCreators({
   apiClosed
 }, store.dispatch);
 
-connectWS(actions);
+actions.accountEvent = (event) => store.dispatch(event);
 
-const accounts = [
-  {name: 'Account One'},
-  {name: 'Account Two'},
-  {name: 'Account Three'},
-  {name: 'Account Four'},
-  {name: 'Account Five'},
-  {name: 'Account Six'},
-  {name: 'Account Seven'},
-];
+setTimeout(() => connectWS(actions), 1000);
 
 ReactDOM.render(
   <Provider store={store}>
-    <App accounts={accounts} />
+    <App />
   </Provider>, document.getElementById('root'));
 registerServiceWorker();

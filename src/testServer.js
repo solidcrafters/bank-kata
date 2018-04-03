@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 
+const {ACCOUNT_DECLARED} = require('./commons/constants');
+
 const wss = new WebSocket.Server({ port: 8080 });
 
 wss.on('connection', function connection(ws) {
@@ -7,5 +9,23 @@ wss.on('connection', function connection(ws) {
     console.log('received: %s', message);
   });
 
-  ws.send('something');
+  [
+    {name: 'Account One'},
+    {name: 'Account Two'},
+    {name: 'Account Three'},
+    {name: 'Account Four'},
+    {name: 'Account Five'},
+    {name: 'Account Six'},
+    {name: 'Account Seven'},
+  ].forEach(({name}, index) => {
+    setTimeout(() => {
+      ws.send(JSON.stringify({
+        type: ACCOUNT_DECLARED,
+        payload: {
+          name,
+          balance: Math.trunc(Math.random() * 2000 - 1000)
+        }
+      }));
+    }, index * 1000 + 500)
+  });
 });

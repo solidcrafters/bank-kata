@@ -11,6 +11,7 @@
     "react-redux": "5.0.7",
     "reactstrap": "5.0.0-beta.3",
     "redux": "3.7.2",
+    "redux-actions": "^2.3.0",
     "tcomb": "3.2.25",
     "ws": "5.1.0"
   },
