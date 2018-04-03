@@ -13,7 +13,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
   app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
   app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/ws.html');
+    res.sendFile(__dirname + '/ws.html')
   })
 
   app.post('/api/account/register', (req, res) => {
@@ -64,7 +64,7 @@ function setupApiServer (app, eventEmitter, accountStore) {
 }
 
 function setupWebSocketServer (server, eventEmitter, accountStore) {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({server})
 
   wss.on('connection', ws => {
     const send = type => payload => {
