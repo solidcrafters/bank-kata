@@ -1,0 +1,40 @@
+{
+  "name": "bank-kata",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "4.0.0",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "react-redux": "5.0.7",
+    "reactstrap": "5.0.0-beta.3",
+    "redux": "3.7.2",
+    "redux-actions": "2.3.0",
+    "tcomb": "3.2.25"
+  },
+  "devDependencies": {
+    "bufferutil": "3.0.3",
+    "npm-run-all": "4.1.2",
+    "react-scripts": "1.1.1",
+    "redux-devtools-extension": "2.13.2",
+    "utf-8-validate": "4.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080"
+    },
+    "/socket": {
+      "target": "ws://localhost:8080",
+      "ws": true,
+      "pathRewrite": {
+        "^/socket": "/"
+      }
+    }
+  }
+}

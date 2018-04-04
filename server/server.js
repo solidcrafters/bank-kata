@@ -4,7 +4,7 @@ const http = require('http')
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
-const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED, AMOUNT_TRANSFERRED} = require('../commons/constants')
+const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED, AMOUNT_TRANSFERRED} = require('../react-ui/src/commons/constants')
 
 function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
@@ -59,8 +59,8 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const fromAccountName = req.body.from
     const toAccountName = req.body.to
     const amount = req.body.amount
-    handle(res, fromAccountName, fromAccount => {
-      handle(res, toAccountName, toAccount => {
+    handle(res, toAccountName, toAccount => {
+      handle(res, fromAccountName, fromAccount => {
         fromAccount.debit(amount)
         toAccount.credit(amount)
         eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
