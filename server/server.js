@@ -94,14 +94,25 @@ function resolveClient (file = '') {
 function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({server})
 
+  function noop() {}
+
+  function heartbeat() {
+    this.isAlive = true;
+  }
+
   wss.on('connection', ws => {
+    ws.isAlive = true;
+    ws.on('pong', heartbeat);
+
     const send = (type, payload) => {
       const event = {
         type,
         payload
       }
       try {
-        ws.send(JSON.stringify(event))
+        if (ws.isAlive) {
+          ws.send(JSON.stringify(event))
+        }
       } catch (error) {
         console.log('Error when sending the event to the ws', error)
       }
@@ -142,6 +153,15 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       }
     }
   })
+
+  setInterval(() => {
+    wss.clients.forEach(ws => {
+      if (ws.isAlive === false) return ws.terminate();
+
+      ws.isAlive = false;
+      ws.ping(noop);
+    });
+  }, 20000);
 }
 
 function setupServer (eventEmitter) {
