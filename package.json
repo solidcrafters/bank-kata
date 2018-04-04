@@ -11,6 +11,10 @@
     "ws": "5.1.0"
   },
   "devDependencies": {},
+  "optionalDependencies": {
+    "bufferutil": "3.0.3",
+    "utf-8-validate": "4.0.0"
+  },
   "cacheDirectories": [
     "node_modules",
     "react-ui/node_modules"

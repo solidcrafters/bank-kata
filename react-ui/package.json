@@ -13,11 +13,8 @@
     "tcomb": "3.2.25"
   },
   "devDependencies": {
-    "bufferutil": "3.0.3",
-    "npm-run-all": "4.1.2",
     "react-scripts": "1.1.1",
-    "redux-devtools-extension": "2.13.2",
-    "utf-8-validate": "4.0.0"
+    "redux-devtools-extension": "2.13.2"
   },
   "scripts": {
     "start": "react-scripts start",
