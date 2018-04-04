@@ -12,7 +12,8 @@
 </div>
 
 <script type="application/javascript">
-  const socket = new WebSocket('ws://localhost:5000');
+  const host = location.origin.replace(/^http/, 'ws')
+  const socket = new WebSocket(host);
   socket.onopen = function (event) {
     console.log('web socket opened !', event);
   };

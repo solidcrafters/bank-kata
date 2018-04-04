@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const http = require('http')
+const path = require('path');
 const WebSocket = require('ws')
 
 const accountManager = require('./account_manager')
@@ -10,11 +11,9 @@ function setupApiServer (app, eventEmitter, accountStore) {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
 
-  app.get('/api/status', (req, res) => res.send({status: 'OK'}))
+  app.use(express.static(resolveClient()));
 
-  app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/ws.html')
-  })
+  app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
   app.post('/api/account/register', (req, res) => {
     const account = accountStore.registerAccount(req.body.name)
@@ -69,6 +68,10 @@ function setupApiServer (app, eventEmitter, accountStore) {
     })
   })
 
+  app.get('*', function(request, response) {
+    response.sendFile(resolveClient('index.html'));
+  });
+
   function handle (res, accountName, handler) {
     const registeredAccount = accountStore.getRegisteredAccount(accountName)
     if (registeredAccount == null) {
@@ -82,6 +85,10 @@ function setupApiServer (app, eventEmitter, accountStore) {
       }
     }
   }
+}
+
+function resolveClient (file = '') {
+  return path.resolve(__dirname, '../react-ui/build', file)
 }
 
 function setupWebSocketServer (server, eventEmitter, accountStore) {
