@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 const {ACCOUNT_DECLARED} = require('./commons/constants');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: 5000 });
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {

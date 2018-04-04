@@ -1,6 +1,6 @@
 export const connectWS = ({apiConnected, apiError, apiClosed, accountEvent}) => {
-  // const ws = new WebSocket(`ws://${document.location.host}/socket`);
-  const ws = new WebSocket(`ws://localhost:8080`);
+  const host = document.location.origin.replace(/^http/, 'ws').replace(/:(\d+)/, ':5000')
+  const ws = new WebSocket(host);
 
   ws.onopen = apiConnected;
   ws.onerror = (error) => {

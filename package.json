@@ -2,46 +2,26 @@
   "name": "bank-kata",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "8.x"
+  },
   "dependencies": {
     "body-parser": "1.18.2",
-    "bootstrap": "4.0.0",
     "express": "4.16.3",
-    "react": "16.2.0",
-    "react-dom": "16.2.0",
-    "react-redux": "5.0.7",
-    "reactstrap": "5.0.0-beta.3",
-    "redux": "3.7.2",
-    "redux-actions": "^2.3.0",
-    "tcomb": "3.2.25",
     "ws": "5.1.0"
   },
-  "devDependencies": {
+  "devDependencies": {},
+  "optionalDependencies": {
     "bufferutil": "3.0.3",
-    "npm-run-all": "4.1.2",
-    "react-scripts": "1.1.1",
-    "redux-devtools-extension": "2.13.2",
     "utf-8-validate": "4.0.0"
   },
+  "cacheDirectories": [
+    "node_modules",
+    "react-ui/node_modules"
+  ],
   "scripts": {
-    "start-js": "react-scripts start",
-    "server": "node src/server/index.js",
-    "start": "npm-run-all -p server start-js",
-    "test-socket": "node src/testServer.js",
-    "start-ui": "npm-run-all -p test-socket start-js",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "proxy": {
-    "/api": {
-      "target": "http://localhost:8080"
-    },
-    "/socket": {
-      "target": "ws://localhost:8080",
-      "ws": true,
-      "pathRewrite": {
-        "^/socket": "/"
-      }
-    }
+    "start": "node server",
+    "dev": "npm start & cd react-ui/ && npm start",
+    "heroku-postbuild": "cd react-ui/ && npm install && npm install --only=dev --no-shrinkwrap && npm run build"
   }
 }
