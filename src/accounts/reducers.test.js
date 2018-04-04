@@ -1,7 +1,10 @@
 /* global describe, it, expect */
 
 import {reducer} from './reducers';
-import {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED} from "../commons/constants";
+import {
+  ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED,
+  AMOUNT_TRANSFERRED
+} from "../commons/constants";
 
 describe('accounts reducers', () => {
   describe('account declared', () => {
@@ -108,6 +111,57 @@ describe('accounts reducers', () => {
           name: 'abitbol'
         }
       });
+    });
+  });
+
+  describe('account undeclared', () => {
+    it('should undeclare an account', () => {
+      const state = {
+        abitbol: {
+          balance: 10,
+          name: 'abitbol'
+        }
+      };
+
+      const action = {
+        type: ACCOUNT_UNDECLARED,
+        payload: {
+          name: 'abitbol'
+        }
+      };
+
+      const newState = reducer(state, action);
+
+      expect(newState.abitbol).toBeUndefined();
+    });
+  });
+
+  describe('amount transferred', () => {
+    it('should transfer a certain amount from an account to a destination account', () => {
+      const state = {
+        peter: {
+          balance: 100,
+          name: 'peter'
+        },
+        steven: {
+          balance: 10,
+          name: 'steven'
+        },
+      };
+
+      const action = {
+        type: AMOUNT_TRANSFERRED,
+        payload: {
+          from: 'peter',
+          to: 'steven',
+          amount: 50
+        }
+      };
+
+      const newState = reducer(state, action);
+
+      expect(newState.peter.balance).toBe(50);
+      expect(newState.steven.balance).toBe(60);
     });
   });
 });
