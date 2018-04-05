@@ -1,7 +1,7 @@
 import {handleActions} from 'redux-actions';
 import {
   ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED,
-  AMOUNT_TRANSFERRED
+  AMOUNT_TRANSFERRED, REQUEST_FORBIDDEN
 } from "../commons/constants";
 import {initialState, Accounts} from "./state";
 
@@ -9,14 +9,15 @@ export const reducer = handleActions({
   [ACCOUNT_DECLARED]: (state, {payload: {name, balance}}) =>
     Accounts.update(state, {
       [name]: {
-        $set: {name, balance}
+        $set: {name, balance, forbiddenAction: false}
       }
     }),
   [ACCOUNT_CREDITED]: (state, {payload: {name, amount}}) =>
     Accounts.update(state, {
       [name]: {
         $merge: {
-          balance: state[name].balance + amount
+          balance: state[name].balance + amount,
+          forbiddenAction: false
         }
       }
     }),
@@ -24,7 +25,8 @@ export const reducer = handleActions({
     Accounts.update(state, {
       [name]: {
         $merge: {
-          balance: state[name].balance - amount
+          balance: state[name].balance - amount,
+          forbiddenAction: false
         }
       }
     }),
@@ -35,13 +37,22 @@ export const reducer = handleActions({
   [AMOUNT_TRANSFERRED]: (state, {payload:{from, to, amount}}) =>
     Accounts.update(state, {
       [from]: {
-        balance: {
-          $set: state[from].balance - amount
+        $merge: {
+          balance: state[from].balance - amount,
+          forbiddenAction: false
         }
       },
       [to]: {
         balance: {
           $set: state[to].balance + amount
+        }
+      }
+    }),
+  [REQUEST_FORBIDDEN]: (state, {payload:{name}}) =>
+    Accounts.update(state, {
+      [name]: {
+        forbiddenAction: {
+          $set: true
         }
       }
     }),
