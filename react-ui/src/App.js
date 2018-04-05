@@ -5,9 +5,9 @@ import {connect} from 'react-redux';
 import Accounts from './components/Accounts';
 import Header from "./components/Header";
 
-export const App = ({apiStatus, accounts}) => (
+export const App = ({apiStatus, accounts, total}) => (
   <React.Fragment>
-    <Header apiStatus={apiStatus} />
+    <Header apiStatus={apiStatus} total={total} />
     <Container fluid>
       <Accounts accounts={accounts} />
     </Container>
@@ -16,5 +16,6 @@ export const App = ({apiStatus, accounts}) => (
 
 export default connect(state => ({
   apiStatus: state.api.status,
-  accounts: Object.values(state.accounts)
+  accounts: Object.values(state.accounts),
+  total: Object.values(state.accounts).reduce((sum, account) => sum + account.balance, 0)
 }))(App);
