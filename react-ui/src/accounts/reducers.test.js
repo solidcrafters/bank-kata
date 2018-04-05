@@ -3,7 +3,7 @@
 import {reducer} from './reducers';
 import {
   ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED,
-  AMOUNT_TRANSFERRED
+  AMOUNT_TRANSFERRED, REQUEST_FORBIDDEN
 } from "../commons/constants";
 
 describe('accounts reducers', () => {
@@ -23,7 +23,8 @@ describe('accounts reducers', () => {
       expect(newState).toMatchObject({
         abitbol: {
           balance: 10,
-          name: 'abitbol'
+          name: 'abitbol',
+          forbiddenAction: false
         }
       });
     });
@@ -63,7 +64,8 @@ describe('accounts reducers', () => {
       const state = {
         abitbol: {
           balance: 10,
-          name: 'abitbol'
+          name: 'abitbol',
+          forbiddenAction: true
         }
       };
 
@@ -80,7 +82,8 @@ describe('accounts reducers', () => {
       expect(newState).toMatchObject({
         abitbol: {
           balance: 23,
-          name: 'abitbol'
+          name: 'abitbol',
+          forbiddenAction: false
         }
       });
     });
@@ -91,7 +94,8 @@ describe('accounts reducers', () => {
       const state = {
         abitbol: {
           balance: 10,
-          name: 'abitbol'
+          name: 'abitbol',
+          forbiddenAction: true
         }
       };
 
@@ -108,7 +112,8 @@ describe('accounts reducers', () => {
       expect(newState).toMatchObject({
         abitbol: {
           balance: -3,
-          name: 'abitbol'
+          name: 'abitbol',
+          forbiddenAction: false
         }
       });
     });
@@ -141,11 +146,13 @@ describe('accounts reducers', () => {
       const state = {
         peter: {
           balance: 100,
-          name: 'peter'
+          name: 'peter',
+          forbiddenAction: true
         },
         steven: {
           balance: 10,
-          name: 'steven'
+          name: 'steven',
+          forbiddenAction: true
         },
       };
 
@@ -161,7 +168,38 @@ describe('accounts reducers', () => {
       const newState = reducer(state, action);
 
       expect(newState.peter.balance).toBe(50);
+      expect(newState.peter.forbiddenAction).toBe(false);
       expect(newState.steven.balance).toBe(60);
+      expect(newState.steven.forbiddenAction).toBe(true);
+    });
+  });
+
+  describe('forbidden request', () => {
+    it('should flag forbidden request', () => {
+      const state = {
+        peter: {
+          balance: 100,
+          name: 'peter',
+          forbiddenAction: false
+        },
+        steven: {
+          balance: 10,
+          name: 'steven',
+          forbiddenAction: false
+        },
+      };
+
+      const action = {
+        type: REQUEST_FORBIDDEN,
+        payload: {
+          name: 'peter',
+        }
+      };
+
+      const newState = reducer(state, action);
+
+      expect(newState.peter.forbiddenAction).toBe(true);
+      expect(newState.steven.forbiddenAction).toBe(false);
     });
   });
 });
