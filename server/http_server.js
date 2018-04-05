@@ -33,9 +33,14 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const accountName = req.body.name
     const amount = req.body.amount
     handle(res, accountName, account => {
-      account.credit(amount)
-      eventEmitter.emit('credit', {name: accountName, amount})
-      return true
+      try {
+        account.credit(amount)
+        eventEmitter.emit('credit', {name: accountName, amount})
+        return true
+      } catch (e) {
+        eventEmitter.emit('request_error', {name: accountName, amount})
+        return false
+      }
     })
   })
 
@@ -43,9 +48,14 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const accountName = req.body.name
     const amount = req.body.amount
     handle(res, accountName, account => {
-      account.debit(amount)
-      eventEmitter.emit('debit', {name: accountName, amount})
-      return true
+      try {
+        account.debit(amount)
+        eventEmitter.emit('debit', {name: accountName, amount})
+        return true
+      } catch (e) {
+        eventEmitter.emit('request_error', {name: accountName, amount})
+        return false
+      }
     })
   })
 
@@ -55,10 +65,15 @@ function setupApiServer (app, eventEmitter, accountStore) {
     const amount = req.body.amount
     handle(res, toAccountName, toAccount => {
       handle(res, fromAccountName, fromAccount => {
-        fromAccount.debit(amount)
-        toAccount.credit(amount)
-        eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
-        return true
+        try {
+          fromAccount.debit(amount)
+          toAccount.credit(amount, true)
+          eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
+          return true
+        } catch (e) {
+          eventEmitter.emit('request_error', {name: fromAccountName, amount})
+          return false
+        }
       })
     })
   })
