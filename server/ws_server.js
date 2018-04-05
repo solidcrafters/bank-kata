@@ -1,6 +1,13 @@
 const WebSocket = require('ws')
 
-const {ACCOUNT_CREDITED, ACCOUNT_DEBITED, ACCOUNT_DECLARED, ACCOUNT_UNDECLARED, AMOUNT_TRANSFERRED} = require('../react-ui/src/commons/constants')
+const {
+  ACCOUNT_CREDITED,
+  ACCOUNT_DEBITED,
+  ACCOUNT_DECLARED,
+  ACCOUNT_UNDECLARED,
+  AMOUNT_TRANSFERRED,
+  REQUEST_FORBIDDEN
+} = require('../react-ui/src/commons/constants')
 
 function setupWebSocketServer (server, eventEmitter, accountStore) {
   const wss = new WebSocket.Server({server})
@@ -32,6 +39,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
     const sendAccountDeclared = payload => send(ACCOUNT_DECLARED, payload)
     const sendAccountUnDeclared = payload => send(ACCOUNT_UNDECLARED, payload)
     const sendAccountCredited = payload => send(ACCOUNT_CREDITED, payload)
+    const sendRequestForbidden = payload => send(REQUEST_FORBIDDEN, payload)
     const sendAccountDebited = payload => send(ACCOUNT_DEBITED, payload)
     const sendAccountTransferred = payload => send(AMOUNT_TRANSFERRED, payload)
 
@@ -43,6 +51,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       eventEmitter.on('declare', sendAccountDeclared)
       eventEmitter.on('undeclare', sendAccountUnDeclared)
       eventEmitter.on('credit', sendAccountCredited)
+      eventEmitter.on('request_error', sendRequestForbidden)
       eventEmitter.on('debit', sendAccountDebited)
       eventEmitter.on('transfer', sendAccountTransferred)
     }
@@ -51,6 +60,7 @@ function setupWebSocketServer (server, eventEmitter, accountStore) {
       eventEmitter.removeListener('declare', sendAccountDeclared)
       eventEmitter.removeListener('undeclare', sendAccountUnDeclared)
       eventEmitter.removeListener('credit', sendAccountCredited)
+      eventEmitter.on('request_error', sendRequestForbidden)
       eventEmitter.removeListener('debit', sendAccountDebited)
       eventEmitter.removeListener('transfer', sendAccountTransferred)
     }
