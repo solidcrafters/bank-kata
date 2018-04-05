@@ -7,15 +7,17 @@ class Account {
   }
 
   credit (amount, forceCreditForTransfer = false) {
+    amount = parseInt(amount, 10);
     if (!forceCreditForTransfer
-      && (amount <= 0 || this.balance + amount > this.highLimit)) {
+      && (isNaN(amount) || amount <= 0 || this.balance + amount > this.highLimit)) {
       throw new Error('Credit impossible')
     }
     this.balance += amount
   }
 
   debit (amount) {
-    if (amount <= 0 || this.balance - amount < this.lowLimit) {
+    amount = parseInt(amount, 10);
+    if (isNaN(amount) || amount <= 0 || this.balance - amount < this.lowLimit) {
       throw new Error('Debit impossible')
     }
     this.balance -= amount
