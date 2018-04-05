@@ -8,6 +8,12 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.use(express.static(resolveClient()));
 
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
   app.get('/api/status', (req, res) => res.send({status: 'OK'}))
 
   app.post('/api/account/register', (req, res) => {
