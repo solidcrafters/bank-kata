@@ -7,20 +7,22 @@ class Account {
   }
 
   credit (amount, forceCreditForTransfer = false) {
-    amount = parseInt(amount, 10);
+    const amountAsInt = parseInt(amount, 10);
     if (!forceCreditForTransfer
-      && (isNaN(amount) || amount <= 0 || this.balance + amount > this.highLimit)) {
+      && (isNaN(amountAsInt) || amountAsInt <= 0 || this.balance + amountAsInt > this.highLimit)) {
       throw new Error('Credit impossible')
     }
-    this.balance += amount
+    this.balance += amountAsInt
+    return amountAsInt;
   }
 
   debit (amount) {
-    amount = parseInt(amount, 10);
-    if (isNaN(amount) || amount <= 0 || this.balance - amount < this.lowLimit) {
+    const amountAsInt = parseInt(amount, 10);
+    if (isNaN(amountAsInt) || amountAsInt <= 0 || this.balance - amountAsInt < this.lowLimit) {
       throw new Error('Debit impossible')
     }
-    this.balance -= amount
+    this.balance -= amountAsInt
+    return amountAsInt;
   }
 
   toJson () {

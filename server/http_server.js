@@ -37,10 +37,10 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.post('/api/account/credit', (req, res) => {
     const accountName = req.body.name
-    const amount = req.body.amount
+    let amount = req.body.amount
     handle(res, accountName, account => {
       try {
-        account.credit(amount)
+        amount = account.credit(amount)
         eventEmitter.emit('credit', {name: accountName, amount})
         return true
       } catch (e) {
@@ -52,10 +52,10 @@ function setupApiServer (app, eventEmitter, accountStore) {
 
   app.post('/api/account/debit', (req, res) => {
     const accountName = req.body.name
-    const amount = req.body.amount
+    let amount = req.body.amount
     handle(res, accountName, account => {
       try {
-        account.debit(amount)
+        amount = account.debit(amount)
         eventEmitter.emit('debit', {name: accountName, amount})
         return true
       } catch (e) {
@@ -68,11 +68,11 @@ function setupApiServer (app, eventEmitter, accountStore) {
   app.post('/api/account/transfer', (req, res) => {
     const fromAccountName = req.body.from
     const toAccountName = req.body.to
-    const amount = req.body.amount
+    let amount = req.body.amount
     handle(res, toAccountName, toAccount => {
       handle(res, fromAccountName, fromAccount => {
         try {
-          fromAccount.debit(amount)
+          amount = fromAccount.debit(amount)
           toAccount.credit(amount, true)
           eventEmitter.emit('transfer', {from: fromAccountName, to: toAccountName, amount})
           return true
